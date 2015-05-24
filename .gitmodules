@@ -1,0 +1,4 @@
+[submodule "Adafruit_Python_MPR121"]
+	path = Adafruit_Python_MPR121
+	url = https://github.com/dwisk/Adafruit_Python_MPR121.git
+	branch = dwisk
