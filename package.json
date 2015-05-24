@@ -19,5 +19,10 @@
   "bugs": {
     "url": "https://github.com/dwisk/PixelNode_Input_MPR121/issues"
   },
-  "homepage": "https://github.com/dwisk/PixelNode_Input_MPR121#readme"
+  "homepage": "https://github.com/dwisk/PixelNode_Input_MPR121#readme",
+  "dependencies": {
+    "pixelnode-input": "0.0.2",
+    "underscore": "^1.8.3"
+  }
+
 }
