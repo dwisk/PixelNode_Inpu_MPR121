@@ -1,0 +1,23 @@
+{
+  "name": "pixelnode-input-mpr121",
+  "version": "0.0.1",
+  "description": "Inputs from Adafruits MPR121 touch sensor via a python subprocess. (Needs Adafruit_Python_MPR121)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dwisk/PixelNode_Input_MPR121.git"
+  },
+  "author": {
+    "name": "Amely Kling",
+    "email": "mail@dwi.sk",
+    "url": "http://dwi.sk"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dwisk/PixelNode_Input_MPR121/issues"
+  },
+  "homepage": "https://github.com/dwisk/PixelNode_Input_MPR121#readme"
+}
