@@ -1,6 +1,6 @@
 {
   "name": "pixelnode-input-mpr121",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Inputs from Adafruits MPR121 touch sensor via a python subprocess. (Needs Adafruit_Python_MPR121)",
   "main": "index.js",
   "scripts": {
