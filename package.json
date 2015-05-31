@@ -1,6 +1,6 @@
 {
   "name": "pixelnode-input-mpr121",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Inputs from Adafruits MPR121 touch sensor",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,6 @@
   "dependencies": {
     "pixelnode-input": "0.0.2",
     "underscore": "^1.8.3",
-    "mpr121": "^0.0.3"
+    "mpr121": "^0.0.4"
   }
 }
