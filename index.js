@@ -41,19 +41,13 @@ module.exports = PixelNode_Input_MPR121;
  * ==================================================================================================================== */
 
 PixelNode_Input_MPR121.prototype.default_options = {
-	"crash_waittime": 1,
-	"crash_cautious_lifetime": 20,
-	"crash_cautious_waittime": 2,
 	"i2c_bus": 2,
 	"i2c_address": 0x5A,
 	"offset": 0,
-	"verbose": false
+	"verbose": false,
+	"timer": 100
 };
 PixelNode_Input_MPR121.prototype.touchsensor = null;
-
-var firstInit = 0;
-var lastInit = 0;
-var crashCount = 0;
 
 var lastPins = [];
 
@@ -64,9 +58,6 @@ var lastPins = [];
 // init effect – override
 PixelNode_Input_MPR121.prototype.init = function() {
 	var self = this;
-
-	lastInit = new Date();
-	if (firstInit == 0) firstInit = new Date();
 
 	// start
 	console.log("Init Input MPR121".grey);
@@ -119,31 +110,45 @@ PixelNode_Input_MPR121.prototype.init = function() {
 // start python listener
 PixelNode_Input_MPR121.prototype.start = function(callback) {
 	var self = this;
+	var last_result = [0,0,0,0,0,0,0,0,0,0,0,0];
  	
  	// setup sensor device 
  	self.touchsensor = new MPR121(self.options.i2c_address, self.options.i2c_bus);
 
  	// initialize sensor, on success start script
  	if (self.touchsensor.begin()) {
+ 		self.touchsensor.set_thresholds(60, 30);
 
  		// Interval for reading the sonsor
  		setInterval(function() {
- 			// get touch values
- 			var t = self.touchsensor.touched();
 
- 			// prepare some result array
- 			var ret = [];
-
- 			// loop through pins
- 			for (var i = 0; i < 12; i++) {
- 				// push status into array
- 				ret.push (self.touchsensor.is_touched(i));
- 			}
+ 			// check if config is correct, otherwise send last_result
+ 			// probably the i2c-bus got switched
+ 			if (self.touchsensor.config() != 32) {
+ 				callback(last_result);
  			
- 			// return status array
- 			callback(ret);
+ 			// get data
+ 			} else {
+	 			// get touch values
+	 			var t = self.touchsensor.touched();
 
- 		},100);
+	 			// prepare some result array
+	 			var ret = [];
+
+	 			// loop through pins
+	 			for (var i = 0; i < 12; i++) {
+	 				// push status into array
+	 				ret.push ((t & (1 << i)) > 0);
+	 				//ret.push (self.touchsensor.is_touched(i));
+	 			}
+
+	 			// return status array
+				callback(ret);
+
+				// remember last result
+				last_result = ret;
+			}	
+ 		}, self.options.timer);
  	};
 
 }
