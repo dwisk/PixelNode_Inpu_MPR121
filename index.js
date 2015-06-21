@@ -45,7 +45,10 @@ PixelNode_Input_MPR121.prototype.default_options = {
 	"i2c_address": 0x5A,
 	"offset": 0,
 	"verbose": false,
-	"timer": 100
+	"timer": 100,
+	"treshold_touch": 12,
+	"treshold_release": 6,
+	"pincount": 12
 };
 PixelNode_Input_MPR121.prototype.touchsensor = null;
 
@@ -64,20 +67,10 @@ PixelNode_Input_MPR121.prototype.init = function() {
 
 	// init input values
 	var init_inputs = {};
-	init_inputs["touches"] = [
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false
-	];
+	init_inputs["touches"] = [];
+	for (var i = 0; i < self.options.pincount; i++) {
+		init_inputs["touches"][i] = false;
+	};
 
 	// init pixelNode data
 	global.pixelNode.data.extend(["inputs",self.options.name], init_inputs);
@@ -110,14 +103,17 @@ PixelNode_Input_MPR121.prototype.init = function() {
 // start python listener
 PixelNode_Input_MPR121.prototype.start = function(callback) {
 	var self = this;
-	var last_result = [0,0,0,0,0,0,0,0,0,0,0,0];
+	var last_result = [];
+	for (var i = 0; i < self.options.pincount; i++) {
+		last_result[i] = false;
+	};
  	
  	// setup sensor device 
  	self.touchsensor = new MPR121(self.options.i2c_address, self.options.i2c_bus);
 
  	// initialize sensor, on success start script
  	if (self.touchsensor.begin()) {
- 		self.touchsensor.set_thresholds(60, 30);
+ 		self.touchsensor.set_thresholds(self.options.treshold_touch, self.options.treshold_release);
 
  		// Interval for reading the sonsor
  		setInterval(function() {
@@ -136,7 +132,7 @@ PixelNode_Input_MPR121.prototype.start = function(callback) {
 	 			var ret = [];
 
 	 			// loop through pins
-	 			for (var i = 0; i < 12; i++) {
+	 			for (var i = 0; i < self.options.pincount; i++) {
 	 				// push status into array
 	 				ret.push ((t & (1 << i)) > 0);
 	 				//ret.push (self.touchsensor.is_touched(i));
