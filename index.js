@@ -117,6 +117,7 @@ PixelNode_Input_MPR121.prototype.start = function(callback) {
 
  		// Interval for reading the sonsor
  		setInterval(function() {
+ 			self.touchsensor.set_thresholds(self.options.treshold_touch, self.options.treshold_release);
 
  			// check if config is correct, otherwise send last_result
  			// probably the i2c-bus got switched
