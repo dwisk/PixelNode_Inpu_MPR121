@@ -23,6 +23,6 @@
   "dependencies": {
     "pixelnode-input": "0.0.2",
     "underscore": "^1.8.3",
-    "mpr121": "^0.0.4"
+    "mpr121": "^0.0.5"
   }
 }
