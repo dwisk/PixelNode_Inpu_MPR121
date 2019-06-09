@@ -52,7 +52,9 @@ PixelNode_Input_MPR121.prototype.default_options = {
 };
 PixelNode_Input_MPR121.prototype.touchsensor = null;
 
-var lastPins = [];
+PixelNode_Input_MPR121.prototype.lastPins = [];
+PixelNode_Input_MPR121.prototype.pins = [];
+PixelNode_Input_MPR121.prototype.last_result = [];
 
 
 /* Overridden Methods
@@ -63,17 +65,22 @@ PixelNode_Input_MPR121.prototype.init = function() {
 	var self = this;
 
 	// start
-	console.log("Init Input MPR121".grey);
+	console.log("Init Input MPR121".grey, "on", self.options.i2c_address, self.options.i2c_bus);
 
 	// init input values
-	var init_inputs = {};
-	init_inputs["touches"] = [];
+	self.init_inputs = Object.assign({});
+	self.init_inputs["touches"] = [];
+	self.pins = [];
+	self.lastPins = [];
 	for (var i = 0; i < self.options.pincount; i++) {
-		init_inputs["touches"][i] = false;
+		self.init_inputs["touches"][i] = false;
+		self.pins[i] = false;
+		self.lastPins[i] = false;
 	};
 
 	// init pixelNode data
-	global.pixelNode.data.extend(["inputs",self.options.name], init_inputs);
+	global.pixelNode.data.extend(["inputs",self.options.name], self.init_inputs);
+
 
 	// start effect
 	self.start(function(result) {
@@ -81,16 +88,17 @@ PixelNode_Input_MPR121.prototype.init = function() {
 		if (self.options.offset != 0) {
 			var segment1 = result.slice(self.options.offset);
 			var segment2 = result.slice(0,self.options.offset);
-			pins = segment1.concat(segment2);
+			self.pins = segment1.concat(segment2);
 		} else {
-			pins = result;
+			self.pins = result;
 		}
+		self.pins[12] = self.options.name;
 
 		// check if touch-point changes
-		for (var i = pins.length - 1; i >= 0; i--) {
-			if (pins[i] != lastPins[i]) {
-				lastPins[i] = pins[i];
-				global.pixelNode.data.set(["inputs", self.options.name, "touches", i], pins[i], !self.options.verbose);
+		for (var i = self.pins.length - 1; i >= 0; i--) {
+			if (self.pins[i] !== self.lastPins[i]) {
+				self.lastPins[i] = self.pins[i];
+				global.pixelNode.data.set(["inputs", self.options.name, "touches", i], self.pins[i], !self.options.verbose);
 			} 
 		}
 	});
@@ -103,9 +111,10 @@ PixelNode_Input_MPR121.prototype.init = function() {
 // start python listener
 PixelNode_Input_MPR121.prototype.start = function(callback) {
 	var self = this;
-	var last_result = [];
+	
+	self.last_result = [];
 	for (var i = 0; i < self.options.pincount; i++) {
-		last_result[i] = false;
+		self.last_result[i] = false;
 	};
  	
  	// setup sensor device 
@@ -117,12 +126,12 @@ PixelNode_Input_MPR121.prototype.start = function(callback) {
 
  		// Interval for reading the sonsor
  		setInterval(function() {
- 			self.touchsensor.set_thresholds(self.options.treshold_touch, self.options.treshold_release);
+			self.touchsensor.set_thresholds(self.options.treshold_touch, self.options.treshold_release);
 
- 			// check if config is correct, otherwise send last_result
+ 			// check if config is correct, otherwise send self.last_result
  			// probably the i2c-bus got switched
  			if (self.touchsensor.config() != 32) {
- 				callback(last_result);
+ 				callback(self.last_result);
  			
  			// get data
  			} else {
@@ -143,7 +152,7 @@ PixelNode_Input_MPR121.prototype.start = function(callback) {
 				callback(ret);
 
 				// remember last result
-				last_result = ret;
+				self.last_result = ret;
 			}	
  		}, self.options.timer);
  	};
